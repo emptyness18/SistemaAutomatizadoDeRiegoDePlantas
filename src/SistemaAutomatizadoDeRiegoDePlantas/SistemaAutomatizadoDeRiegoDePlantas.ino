@@ -1,10 +1,12 @@
 /*
   Proyecto para feria cientifica de Sion
-  Integrantes: Byron Cordero
+  Integrantes: Byron Cordero, Wmmanuel Cortez, Jorge Aguilar
 */
 #include <Wire.h>
 #include <LCD.h>
 #include <LiquidCrystal_I2C.h>
+#include <Adafruit_MotorShield.h>
+#include <Servo.h>
 
 #define LIMITE_SECO 600
 #define LIMITE_BIEN 300
@@ -19,11 +21,16 @@
 #define D6_pin 6
 #define D7_pin 7
 
+Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
+
+Adafruit_DCMotor *myMotor = AFMS.getMotor(1);
+
 LiquidCrystal_I2C lcd(I2C_ADDR, En_pin, Rw_pin, Rs_pin, D4_pin, D5_pin, D6_pin, D7_pin);
 
 int pinSensorHumedad = A0;
 int lecturaDeHumedad = 0;
-int retrasoDeCiclo = 5000;
+int retrasoDeCiclo = 3000;
+Servo servo;
 
 void setup() {
   Serial.begin(9600); 
@@ -32,16 +39,36 @@ void setup() {
   lcd.setBacklightPin(BACKLIGHT_PIN, POSITIVE);
   lcd.setBacklight(HIGH);
   lcd.home();
-  
+ 
+  servo.attach(9);
+ 
   lcd.print("Hola");
   
-  delay(5000);
-  
+  AFMS.begin();
+  myMotor->setSpeed(255);
+
+  delay(2000);
+ 
+}
+void irrigar() {
+  Serial.print("irrigando");
+  myMotor->run(FORWARD); 
+  int position;
+
+  for(position = 110; position < 165; position += 2)
+  {
+    servo.write(position);  // Move to next position
+    delay(50);               // Short pause to allow it to move
+  }
+ 
+  myMotor->run(RELEASE);
+ 
+  delay(2000);
 }
 
 void loop() {
   lecturaDeHumedad = analogRead(pinSensorHumedad);
-  Serial.print("lectura");
+  Serial.print("lectura ");
   Serial.println(lecturaDeHumedad);
   lcd.clear();
   lcd.setCursor (0, 1);
@@ -54,6 +81,7 @@ void loop() {
   if(lecturaDeHumedad>=LIMITE_SECO) 
   {
       Serial.println("esta seco");
+      irrigar();
       
   }
   else if(lecturaDeHumedad>=LIMITE_BIEN)
@@ -62,13 +90,14 @@ void loop() {
   }
   else
   {
-      Serial.println("sobreHidratado");
+      Serial.println("sobre Hidratado");
   }
   
   delay(retrasoDeCiclo);
 
+  
+ 
 }
-
 
 
 
