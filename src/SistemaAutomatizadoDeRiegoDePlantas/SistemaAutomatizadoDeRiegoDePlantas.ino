@@ -8,8 +8,8 @@
 #include <Adafruit_MotorShield.h>
 #include <Servo.h>
 
-#define LIMITE_SECO 600
-#define LIMITE_BIEN 300
+#define LIMITE_SECO 500
+#define LIMITE_BIEN 200
 
 #define I2C_ADDR 0x27
 #define BACKLIGHT_PIN 3
@@ -29,7 +29,7 @@ LiquidCrystal_I2C lcd(I2C_ADDR, En_pin, Rw_pin, Rs_pin, D4_pin, D5_pin, D6_pin, 
 
 int pinSensorHumedad = A0;
 int lecturaDeHumedad = 0;
-int retrasoDeCiclo = 3000;
+int retrasoDeCiclo = 30000;
 Servo servo;
 
 void setup() {
@@ -37,11 +37,13 @@ void setup() {
   
   lcd.begin(16, 2);
   lcd.setBacklightPin(BACKLIGHT_PIN, POSITIVE);
-  lcd.setBacklight(HIGH);
+  lcd.setBacklight(LOW);
   lcd.home();
  
   servo.attach(9);
- 
+
+  servo.write(150);
+  
   lcd.print("Hola");
   
   AFMS.begin();
@@ -55,7 +57,7 @@ void irrigar() {
   myMotor->run(FORWARD); 
   int position;
 
-  for(position = 110; position < 165; position += 2)
+  for(position = 125; position < 160; position += 2)
   {
     servo.write(position);  // Move to next position
     delay(50);               // Short pause to allow it to move
@@ -81,16 +83,22 @@ void loop() {
   if(lecturaDeHumedad>=LIMITE_SECO) 
   {
       Serial.println("esta seco");
+      lcd.setCursor(0, 0);
+      lcd.print("Esta seco");
       irrigar();
       
   }
   else if(lecturaDeHumedad>=LIMITE_BIEN)
   {
       Serial.println("esta bien");
+      lcd.setCursor(0, 0);
+      lcd.print("Esta bien");
   }
   else
   {
       Serial.println("sobre Hidratado");
+      lcd.setCursor(0, 0);
+      lcd.print("Sobre hidratado");
   }
   
   delay(retrasoDeCiclo);
