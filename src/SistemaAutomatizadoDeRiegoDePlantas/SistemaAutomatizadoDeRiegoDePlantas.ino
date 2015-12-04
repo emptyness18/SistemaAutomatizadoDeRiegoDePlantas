@@ -8,7 +8,7 @@
 #include <Adafruit_MotorShield.h>
 #include <Servo.h>
 
-#define LIMITE_SECO 500
+#define LIMITE_SECO 260
 #define LIMITE_BIEN 200
 
 #define I2C_ADDR 0x27
@@ -37,7 +37,7 @@ void setup() {
   
   lcd.begin(16, 2);
   lcd.setBacklightPin(BACKLIGHT_PIN, POSITIVE);
-  lcd.setBacklight(LOW);
+  lcd.setBacklight(HIGH);
   lcd.home();
  
   servo.attach(9);
@@ -49,7 +49,7 @@ void setup() {
   AFMS.begin();
   myMotor->setSpeed(255);
 
-  delay(2000);
+  delay(10000);
  
 }
 void irrigar() {
@@ -76,8 +76,7 @@ void loop() {
   lcd.setCursor (0, 1);
   lcd.print("Lectura");
   lcd.setCursor (8, 1);
-  lcd.print(lecturaDeHumedad);
-  
+  lcd.print(lecturaDeHumedad);  
   
   
   if(lecturaDeHumedad>=LIMITE_SECO) 
@@ -103,8 +102,6 @@ void loop() {
   
   delay(retrasoDeCiclo);
 
-  
- 
 }
 
 
